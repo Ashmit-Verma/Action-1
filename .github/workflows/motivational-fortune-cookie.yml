@@ -25,4 +25,4 @@ jobs:
            echo "QUOTE=${quotes[$(( RANDOM % ${#quotes[@]} ))]}" >> $GITHUB_ENV
 
       - name: Display Motivational Quote
-        run: echo "Good work commiting in my git.Keep working like this and eventually success will be yours            ${{ env.QUOTE }}"
+        run: echo "Good work commiting in my git.Keep working like this and eventually success will be yours.${{ env.QUOTE }}"
