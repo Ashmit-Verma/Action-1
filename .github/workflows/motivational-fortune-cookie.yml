@@ -2,7 +2,7 @@ name: Motivational Quotes
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   motivational_quotes:
