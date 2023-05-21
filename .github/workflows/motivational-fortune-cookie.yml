@@ -1,28 +1,41 @@
-name: Motivational Quotes
+name: Joke Action
+
 on:
   push:
     branches:
-      - main
+        -main
 
 jobs:
-  motivational_quotes:
+  joke:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Get Motivational Quote
-        id: get_quote
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Generate Joke
+        id: joke
         run: |
-          quotes=(
-            "Success is not final, failure is not fatal: It is the courage to continue that counts. - Winston Churchill"
-            "Believe you can and you're halfway there. - Theodore Roosevelt"
-            "The only limit to our realization of tomorrow will be our doubts of today. - Franklin D. Roosevelt"
-            "Your time is limited, don't waste it living someone else's life. - Steve Jobs"
-            "The future belongs to those who believe in the beauty of their dreams. - Eleanor Roosevelt"
-          )
-           echo "QUOTE=${quotes[$(( RANDOM % ${#quotes[@]} ))]}" >> $GITHUB_ENV
+          jokes=("Why do programmers prefer dark mode? Because the light attracts bugs!" "Why don't programmers like nature? It has too many bugs!" "Why did the programmer go broke? Because he didn't get arrays!")
+          echo "::set-output name=joke::${jokes[$RANDOM % ${#jokes[@]}]}"
 
-      - name: Display Motivational Quote
-        run: echo "Good work commiting in my git.Keep working like this and eventually success will be yours.${{ env.QUOTE }}"
+      - name: Comment on PR
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const joke = '${{ steps.joke.outputs.joke }}';
+            const { owner, repo } = context.repo;
+            const { number } = context.payload.pull_request;
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+            await octokit.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: `Here's a programming joke for you:\n\n${joke}`,
+            });
